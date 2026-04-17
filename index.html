@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InfoArbeit Quiz</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- ═══════════════════════════ Header ═══════════════════════════ -->
+    <header class="app-header">
+      <h1>📚 InfoArbeit Quiz</h1>
+      <p>Adaptives Lernsystem – beherrscht Themen, die du noch üben musst, automatisch mehr</p>
+    </header>
+
+    <!-- ═══════════════════════ Menu Screen ══════════════════════════ -->
+    <div id="screen-menu">
+
+      <!-- Nav Tabs -->
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="showMenuTab('home')" id="tab-home">🏠 Start</button>
+        <button class="nav-tab" onclick="showMenuTab('topics')" id="tab-topics">📋 Themen</button>
+        <button class="nav-tab" onclick="showScreen('stats')" id="tab-stats">📊 Statistik</button>
+      </div>
+
+      <!-- Home Tab -->
+      <div id="menu-home">
+        <div class="card">
+          <div class="card-title">Dein Fortschritt</div>
+          <div class="stat-grid">
+            <div class="stat-item">
+              <span class="stat-value" id="menu-total">0</span>
+              <span class="stat-label">Beantwortet</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value" style="color:#2ecc71" id="menu-correct">0</span>
+              <span class="stat-label">Richtig</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value" id="menu-accuracy">—</span>
+              <span class="stat-label">Genauigkeit</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value" style="color:#f39c12" id="menu-streak">0</span>
+              <span class="stat-label">Beste Serie</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value" style="color:#9b59b6" id="menu-questions">—</span>
+              <span class="stat-label">Fragen im Pool</span>
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="startQuiz()">
+              ▶ Quiz starten
+            </button>
+            <button class="btn btn-danger" onclick="confirmReset()">
+              🗑 Zurücksetzen
+            </button>
+          </div>
+        </div>
+
+        <!-- How it works -->
+        <div class="card">
+          <div class="card-title">Wie funktioniert das?</div>
+          <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.8;">
+            Das Quiz misst dein Können <strong>dynamisch</strong>:
+          </p>
+          <ul style="color:var(--text-muted); font-size:0.88rem; line-height:2; padding-left:20px; margin-top:8px;">
+            <li>✅ Fragen, die du <strong>richtig</strong> beantwortest, erscheinen <strong>seltener</strong>.</li>
+            <li>❌ Fragen, die du <strong>falsch</strong> beantwortest, werden <strong>häufiger</strong> angezeigt.</li>
+            <li>🎯 Je öfter du richtig liegst, desto besser dein Beherrschungsgrad.</li>
+            <li>💾 Dein Fortschritt wird automatisch gespeichert.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Topics Tab -->
+      <div id="menu-topics" class="hidden">
+        <div class="card">
+          <div class="card-title">Thema auswählen</div>
+          <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:14px;">
+            Wähle ein Thema, um nur dazu Fragen zu erhalten. Oder wähle „Alle Themen" für den adaptiven Modus.
+          </p>
+          <div id="topic-selector"></div>
+          <div class="btn-group" style="margin-top:16px;">
+            <button class="btn btn-primary" onclick="startQuiz(); showMenuTab('home')">
+              ▶ Mit gewähltem Thema starten
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /screen-menu -->
+
+    <!-- ═══════════════════════ Quiz Screen ═══════════════════════════ -->
+    <div id="screen-quiz" class="hidden">
+
+      <!-- Quiz Header Bar -->
+      <div class="card">
+        <div class="quiz-header">
+          <button class="btn btn-secondary" style="padding:8px 16px; font-size:0.85rem;" onclick="showScreen('menu')">
+            ← Menü
+          </button>
+          <div class="quiz-stats-bar">
+            <span>✅ <strong id="quiz-correct">0</strong></span>
+            <span>❌ <strong id="quiz-wrong">0</strong></span>
+            <span>🎯 <strong id="quiz-accuracy">—</strong></span>
+            <span>🔥 <strong id="quiz-streak">0</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question Card -->
+      <div class="card">
+        <div class="question-meta">
+          <span class="quiz-badge" id="question-topic"></span>
+          <span class="mastery-text" id="question-mastery"></span>
+        </div>
+
+        <div id="question-text"></div>
+
+        <div id="options"></div>
+
+        <div id="feedback" class="feedback hidden"></div>
+        <div id="explanation" class="hidden"></div>
+
+        <div style="text-align:right;">
+          <button class="btn btn-primary hidden" id="next-btn" onclick="nextQuestion()">
+            Nächste Frage →
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /screen-quiz -->
+
+    <!-- ═══════════════════════ Stats Screen ══════════════════════════ -->
+    <div id="screen-stats" class="hidden">
+
+      <div class="nav-tabs">
+        <button class="nav-tab" onclick="showScreen('menu')">← Zurück</button>
+        <button class="nav-tab active">📊 Statistik</button>
+      </div>
+
+      <!-- Summary -->
+      <div class="card">
+        <div class="card-title">Gesamtübersicht</div>
+        <div class="stats-grid-summary">
+          <div class="stat-item">
+            <span class="stat-value" id="stats-total">0</span>
+            <span class="stat-label">Beantwortet</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" style="color:#2ecc71" id="stats-correct">0</span>
+            <span class="stat-label">Richtig</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" style="color:#e74c3c" id="stats-wrong">0</span>
+            <span class="stat-label">Falsch</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="stats-accuracy">—</span>
+            <span class="stat-label">Genauigkeit</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" style="color:#f39c12" id="stats-streak-best">0</span>
+            <span class="stat-label">Beste Serie</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Per-Topic Stats -->
+      <div class="card">
+        <div class="card-title">Themenübersicht</div>
+        <div id="stats-topics"></div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="startQuiz()">▶ Quiz starten</button>
+        <button class="btn btn-danger" onclick="confirmReset()">🗑 Zurücksetzen</button>
+      </div>
+
+    </div><!-- /screen-stats -->
+
+  </div><!-- /app -->
+
+  <script src="questions.js"></script>
+  <script src="quiz.js"></script>
+  <script>
+    // Tab switching inside menu
+    function showMenuTab(tab) {
+      document.getElementById("menu-home").classList.toggle("hidden", tab !== "home");
+      document.getElementById("menu-topics").classList.toggle("hidden", tab !== "topics");
+      document.getElementById("tab-home").classList.toggle("active", tab === "home");
+      document.getElementById("tab-topics").classList.toggle("active", tab === "topics");
+      document.getElementById("tab-stats").classList.remove("active");
+    }
+  </script>
+</body>
+</html>
