@@ -8,10 +8,11 @@
  * - State is persisted in localStorage.
  */
 
-const WEIGHT_CORRECT = 0.5;   // Multiply weight by this on correct answer
-const WEIGHT_WRONG   = 2.0;   // Multiply weight by this on wrong answer
-const WEIGHT_MIN     = 0.1;   // Minimum weight (question can never disappear entirely)
-const WEIGHT_MAX     = 10.0;  // Maximum weight cap
+const WEIGHT_CORRECT    = 0.5;  // Multiply weight by this on correct answer
+const WEIGHT_WRONG      = 2.0;  // Multiply weight by this on wrong answer
+const WEIGHT_MIN        = 0.1;  // Minimum weight (question can never disappear entirely)
+const WEIGHT_MAX        = 10.0; // Maximum weight cap
+const CODE_INDENT_SPACES = 4;   // Number of leading spaces that mark a code line
 
 const STORAGE_KEY = "infoQuizState";
 
@@ -242,6 +243,15 @@ function nextQuestion() {
   renderQuestion(currentQuestion);
 }
 
+function updateQuizStatsDisplay() {
+  const total = state.totalCorrect + state.totalWrong;
+  const accuracy = total > 0 ? Math.round((state.totalCorrect / total) * 100) : 0;
+  document.getElementById("quiz-correct").textContent = state.totalCorrect;
+  document.getElementById("quiz-wrong").textContent = state.totalWrong;
+  document.getElementById("quiz-accuracy").textContent = total > 0 ? accuracy + "%" : "—";
+  document.getElementById("quiz-streak").textContent = state.streakCurrent;
+}
+
 function renderQuestion(q) {
   // Topic badge
   const badge = document.getElementById("question-topic");
@@ -263,7 +273,7 @@ function renderQuestion(q) {
   parts.forEach(part => {
     if (part.trim() === "") return;
     // Lines starting with spaces or containing Python keywords in context are shown as code
-    if (part.startsWith("    ") || part.startsWith("\t")) {
+    if (part.startsWith(" ".repeat(CODE_INDENT_SPACES)) || part.startsWith("\t")) {
       const code = document.createElement("code");
       code.className = "code-line";
       code.textContent = part;
@@ -290,12 +300,7 @@ function renderQuestion(q) {
   });
 
   // Progress
-  const total = state.totalCorrect + state.totalWrong;
-  const accuracy = total > 0 ? Math.round((state.totalCorrect / total) * 100) : 0;
-  document.getElementById("quiz-correct").textContent = state.totalCorrect;
-  document.getElementById("quiz-wrong").textContent = state.totalWrong;
-  document.getElementById("quiz-accuracy").textContent = total > 0 ? accuracy + "%" : "—";
-  document.getElementById("quiz-streak").textContent = state.streakCurrent;
+  updateQuizStatsDisplay();
 }
 
 function selectAnswer(selectedIndex) {
@@ -333,12 +338,7 @@ function selectAnswer(selectedIndex) {
   document.getElementById("next-btn").classList.remove("hidden");
 
   // Update quiz stats display
-  const total = state.totalCorrect + state.totalWrong;
-  const accuracy = total > 0 ? Math.round((state.totalCorrect / total) * 100) : 0;
-  document.getElementById("quiz-correct").textContent = state.totalCorrect;
-  document.getElementById("quiz-wrong").textContent = state.totalWrong;
-  document.getElementById("quiz-accuracy").textContent = total > 0 ? accuracy + "%" : "—";
-  document.getElementById("quiz-streak").textContent = state.streakCurrent;
+  updateQuizStatsDisplay();
 }
 
 function renderStats() {
